@@ -27,8 +27,8 @@ const initializeDBAndServer = async () => {
     try {
         await client.connect();
         console.log("Connected to MongoDB.....");
-        app.listen(3000, () => {
-            console.log('Server running on port: 3000');
+        app.listen(process.env.PORT, () => {
+            console.log(`Server running on port: ${process.env.PORT}`);
         });
     } catch (error) {
         console.error("Error connecting to MongoDB:", error);
@@ -56,12 +56,12 @@ const authenticateJwtToken = (request, response, next) => {
     }
     if (jwtToken === undefined) {
         response.status(401);
-        response.send("Invalid JWT Token");
+        response.send({ error: "Invalid JWT Token" });
     } else {
         jwt.verify(jwtToken, process.env.SECRET_TOKEN, async (error, payload) => {
             if (error) {
                 response.status(401);
-                response.send({ "Invalid JWT Token": error });
+                response.send({ error: "Invalid JWT Token" });
             } else {
                 request.userId = payload.userId;
                 next();
@@ -74,7 +74,9 @@ const authenticateJwtToken = (request, response, next) => {
 const checkOwnership = async (request,response,next) =>{
     const customerId = request.params.id 
     const userId = request.userId 
-     const collection = client.db(process.env.DATABASE_NAME).collection(process.env.CUSTOMERS_COLLECTION_NAME);
+    const collection = client.db(process.env.DATABASE_NAME).collection(process.env.CUSTOMERS_COLLECTION_NAME);
+
+    if (!ObjectId.isValid(customerId)) return response.status(400).send({ error: "Invalid customer ID format" });
 
     const getCustomerDetails = await collection.findOne({_id : new ObjectId(`${customerId}`)})
     if(!getCustomerDetails){
@@ -128,7 +130,7 @@ app.post('/login', async (request, response) => {
         }
         const isPasswordMatched = await bcrypt.compare(password, isUserExist.password);
         if (isPasswordMatched) {
-            const token = jwt.sign({ userId: isUserExist._id }, process.env.SECRET_TOKEN);
+            const token = jwt.sign({ userId: isUserExist._id }, process.env.SECRET_TOKEN,{ expiresIn: '1d' });
             response.status(200)
             response.send({ jwtToken: token, userId: isUserExist._id });
         } else {
@@ -146,6 +148,8 @@ app.post('/getUserData/:userId',authenticateJwtToken, async (request, response) 
     try {
         const collection = client.db(process.env.DATABASE_NAME).collection(process.env.USERS_COLLECTION_NAME); 
         const { userId } = request.params;
+
+        if (!ObjectId.isValid(userId)) return response.status(400).send({ error: "Invalid user ID format" });
 
         if( `${userId}` !== `${request.userId}` ){
             return response.status(401).send({error : "Unathorized"})
@@ -205,6 +209,8 @@ app.put('/update-customer/:id', authenticateJwtToken,checkOwnership, async (requ
         const id = request.params.id;
         const updateData = { ...request.body };
 
+        if (!ObjectId.isValid(id)) return response.status(400).send({ error: "Invalid customer ID format" });
+
         if ('phone' in updateData) {
             delete updateData.phone;
         }
@@ -240,7 +246,7 @@ app.post('/getCustomerData/:id',authenticateJwtToken,checkOwnership, async (requ
     try {
         const collection = client.db(process.env.DATABASE_NAME).collection(process.env.CUSTOMERS_COLLECTION_NAME); 
         const { id } = request.params;
-        
+        if (!ObjectId.isValid(id)) return response.status(400).send({ error: "Invalid customer ID format" });
         const result = await collection.findOne(new ObjectId(id));
         
         response.status(200)
@@ -259,6 +265,7 @@ app.delete('/delete-customer/:id', authenticateJwtToken,checkOwnership, async (r
         const id = request.params.id;
         const collection = client.db(process.env.DATABASE_NAME).collection(process.env.CUSTOMERS_COLLECTION_NAME);
 
+        if (!ObjectId.isValid(id)) return response.status(400).send({ error: "Invalid customer ID format" });
         
 
         const result = await collection.deleteOne({ _id: new ObjectId(id) });
@@ -289,6 +296,7 @@ app.post('/create-loan', authenticateJwtToken, async (request, response) => {
             graceDays = 0
         } = request.body;
         const userId = request.userId
+        if (!ObjectId.isValid(customerId)) return response.status(400).send({ error: "Invalid customer ID format" });
         const isCustomerExist = await collection.findOne({_id : new ObjectId(`${customerId}`)})
 
   
@@ -298,7 +306,7 @@ app.post('/create-loan', authenticateJwtToken, async (request, response) => {
 
         
 
-        if(isCustomerExist.length === 0){
+        if(!isCustomerExist){
             return response.status(400).send({"error" : "Customer Id invalid"})
         }
         
@@ -344,6 +352,8 @@ app.put('/update-loan/:id', authenticateJwtToken, async (request,response)=>{
     const loanDetails = request.body 
     const loanId = request.params.id 
     const {status} = loanDetails 
+
+    if (!ObjectId.isValid(loanId)) return response.status(400).send({ error: "Invalid Loan ID format" });
     
 
     if(status !== 'pending' && status !== 'completed'){
@@ -386,3 +396,4 @@ app.post('/loans', authenticateJwtToken, async (request,response)=>{
     response.status(200)
     response.send(loans)
 })
+
