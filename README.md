@@ -47,7 +47,7 @@ SECRET_KEY=your_jwt_secret_key
 ### User Registration
 
 ```http
-POST http://localhost:3000/register
+POST https://credikhaata-x9fn.onrender.com/register
 Content-Type: application/json
 
 {
@@ -166,7 +166,6 @@ Content-Type: application/json
 ---
 
 ## Notes
-
 * JWT tokens must be sent in the `Authorization` header as: `Bearer <token>`.
 * User actions are scoped: only data created by a user can be accessed by that user.
 * Use `node-cron` for automated daily checks to update loan statuses to `overDue` based on the due date.
