@@ -59,7 +59,7 @@ Content-Type: application/json
 ### User Login
 
 ```http
-POST http://localhost:3000/login
+POST https://credikhaata-x9fn.onrender.com/login
 Content-Type: application/json
 
 {
@@ -71,21 +71,21 @@ Content-Type: application/json
 ### Get User Details by ID
 
 ```http
-POST http://localhost:3000/getUserData/<userId>
+POST https://credikhaata-x9fn.onrender.com/getUserData/<userId>
 Authorization: Bearer <your-jwt-token>
 ```
 
 ### Get Customer Details by ID
 
 ```http
-POST http://localhost:3000/getCustomerData/<customerId>
+POST https://credikhaata-x9fn.onrender.com/getCustomerData/<customerId>
 Authorization: Bearer <your-jwt-token>
 ```
 
 ### Add Customer
 
 ```http
-POST http://localhost:3000/add-customer/
+POST https://credikhaata-x9fn.onrender.com/add-customer/
 Authorization: Bearer <your-jwt-token>
 Content-Type: application/json
 
@@ -101,7 +101,7 @@ Content-Type: application/json
 ### Update Customer
 
 ```http
-PUT http://localhost:3000/update-customer/<customerId>
+PUT https://credikhaata-x9fn.onrender.com/update-customer/<customerId>
 Authorization: Bearer <your-jwt-token>
 Content-Type: application/json
 
@@ -114,14 +114,14 @@ Content-Type: application/json
 ### Delete Customer
 
 ```http
-DELETE http://localhost:3000/delete-customer/<customerId>
+DELETE https://credikhaata-x9fn.onrender.com/delete-customer/<customerId>
 Authorization: Bearer <your-jwt-token>
 ```
 
 ### Create Loan
 
 ```http
-POST http://localhost:3000/create-loan/
+POST https://credikhaata-x9fn.onrender.com/create-loan/
 Authorization: Bearer <your-jwt-token>
 Content-Type: application/json
 
@@ -140,7 +140,7 @@ Content-Type: application/json
 ### Update Loan
 
 ```http
-PUT http://localhost:3000/update-loan/<loanId>
+PUT https://credikhaata-x9fn.onrender.com/update-loan/<loanId>
 Authorization: Bearer <your-jwt-token>
 Content-Type: application/json
 
@@ -154,7 +154,7 @@ Content-Type: application/json
 Allowed status values: `pending`, `completed`, `overDue`, `all`
 
 ```http
-POST http://localhost:3000/loans/
+POST https://credikhaata-x9fn.onrender.com/loans/
 Authorization: Bearer <your-jwt-token>
 Content-Type: application/json
 
